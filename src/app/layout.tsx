@@ -24,6 +24,13 @@ export const metadata: Metadata = {
   description:
     "למידה אישית במקצועות רבי‐מלל, והוראה מותאמת שפתית-רגשית לילדים ובני נוער מכיתה ג' ועד י\"ב. קליניקה בקיבוץ נען.",
   icons: { icon: "/logo-icon.png" },
+  // Preview card when the link is shared on WhatsApp / Facebook.
+  openGraph: {
+    type: "website",
+    locale: "he_IL",
+    siteName: "הבית של מיכל",
+    images: [{ url: "/logo-full.png", width: 500, height: 493, alt: "הבית של מיכל" }],
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
