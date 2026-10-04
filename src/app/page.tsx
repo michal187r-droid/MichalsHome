@@ -75,7 +75,7 @@ export default function Home() {
             <span className="eyebrow-home">מה אומרים</span>
             <h2>הורים ותלמידים מספרים</h2>
           </div>
-          <Testimonials items={testimonials.slice(0, 3)} short />
+          <Testimonials items={testimonials} short />
         </div>
       </div>
     </>
