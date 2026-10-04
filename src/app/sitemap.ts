@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { categories } from "@/content/site";
 
-const base = "https://michalronies.co.il";
+const base = "https://www.michalronies.co.il";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const pages = ["", "/about", "/contact", "/testimonials"];

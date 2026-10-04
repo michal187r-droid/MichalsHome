@@ -16,7 +16,7 @@ const assistant = Assistant({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://michalronies.co.il"),
+  metadataBase: new URL("https://www.michalronies.co.il"),
   title: {
     default: "הבית של מיכל – למידה מותאמת שפתית רגשית",
     template: "%s | הבית של מיכל",
