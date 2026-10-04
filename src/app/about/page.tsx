@@ -14,8 +14,8 @@ export default function AboutPage() {
           <Image src={michalPhoto} alt="מיכל רוניס בקליניקה" priority sizes="(max-width: 820px) 100vw, 420px" />
         </div>
         <div>
-          <span className="eyebrow-home">אודות</span>
-          <h1>מיכל</h1>
+          <span className="eyebrow-home">אודות · מיכל רוניס</span>
+          <h1 className="about-headline">{about.headline}</h1>
           {about.paragraphs.map((p) => (
             <p key={p}>{p}</p>
           ))}
