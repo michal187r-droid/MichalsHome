@@ -73,9 +73,9 @@ export default function Home() {
         <div className="wrap">
           <div className="section-head">
             <span className="eyebrow-home">מה אומרים</span>
-            <h2>הורים ואנשי חינוך מספרים</h2>
+            <h2>הורים ותלמידים מספרים</h2>
           </div>
-          <Testimonials items={testimonials.slice(0, 3)} />
+          <Testimonials items={testimonials} short />
         </div>
       </div>
     </>
