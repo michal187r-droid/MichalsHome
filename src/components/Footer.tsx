@@ -29,7 +29,6 @@ export default function Footer() {
             <h4>ניווט</h4>
             <ul>
               <li><Link href="/about">אודות מיכל</Link></li>
-              <li><Link href="/blog">בלוג</Link></li>
               <li><Link href="/testimonials">המלצות</Link></li>
               <li><Link href="/contact">צור קשר</Link></li>
             </ul>

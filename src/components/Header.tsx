@@ -11,7 +11,6 @@ const links = [
   { href: "/about", label: "אודות מיכל" },
 ];
 const trailingLinks = [
-  { href: "/blog", label: "בלוג" },
   { href: "/testimonials", label: "המלצות" },
   { href: "/contact", label: "צור קשר" },
 ];
