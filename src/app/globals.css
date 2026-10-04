@@ -252,3 +252,4 @@ footer.site-footer a:hover { color:var(--color-amber); }
 .video-facade:hover .play { background:var(--color-amber-deep); }
 .video-facade .label { font-weight:700; font-size:1.1rem; }
 .video-facade .meta { font-size:.85rem; opacity:.8; }
+.story p.story-highlight { background:var(--color-amber); color:var(--color-teal-deep); font-weight:700; font-size:1.12rem; border-radius:16px; padding:16px 20px; max-width:none; box-shadow:var(--shadow-soft); }

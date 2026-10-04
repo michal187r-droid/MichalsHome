@@ -43,6 +43,7 @@ export default async function CategoryPage({ params }: PageProps<"/services/[slu
                 {c.story.paragraphs.map((p) => (
                   <p key={p}>{p}</p>
                 ))}
+                {c.story.highlight && <p className="story-highlight">{c.story.highlight}</p>}
                 <h2 style={{ marginTop: 28 }}>{c.story.pillarsHeading}</h2>
                 <div className="pillars">
                   {c.story.pillars.map((p) => (
