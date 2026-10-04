@@ -10,8 +10,18 @@ export default function AboutPage() {
   return (
     <div className="section">
       <div className="wrap about-grid">
-        <div className="about-photo">
-          <Image src={michalPhoto} alt="מיכל רוניס בקליניקה" priority sizes="(max-width: 820px) 100vw, 420px" />
+        <div>
+          <div className="about-photo">
+            <Image src={michalPhoto} alt="מיכל רוניס בקליניקה" priority sizes="(max-width: 820px) 100vw, 420px" />
+          </div>
+          <div className="info-card credentials">
+            <h2>השכלה והסמכות</h2>
+            <ul className="value-list">
+              {about.credentials.map((c) => (
+                <li key={c}>{c}</li>
+              ))}
+            </ul>
+          </div>
         </div>
         <div>
           <span className="eyebrow-home">אודות · מיכל רוניס</span>
