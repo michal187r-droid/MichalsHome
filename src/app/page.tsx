@@ -3,6 +3,7 @@ import Link from "next/link";
 import { about, categories, hero, testimonials } from "@/content/site";
 import { CategoryIcon } from "@/components/icons";
 import Testimonials from "@/components/Testimonials";
+import michalPhoto from "../../public/michal.webp";
 
 export default function Home() {
   return (
@@ -17,6 +18,7 @@ export default function Home() {
             <span className="hero-meta">{hero.eyebrow}</span>
             <h1>{hero.headline}</h1>
             <p className="hero-tagline">{hero.tagline}</p>
+            <p className="hero-belief">{hero.belief}</p>
             <div className="hero-actions">
               <Link href="/contact" className="btn btn-primary">
                 לתיאום שיחת היכרות
@@ -31,7 +33,7 @@ export default function Home() {
             <span className="confetti-dot dot-2" aria-hidden="true"></span>
             <span className="confetti-dot dot-3" aria-hidden="true"></span>
             <span className="confetti-dot dot-4" aria-hidden="true"></span>
-            <Image src="/logo-full.png" alt="הבית של מיכל – בית עם ספר פתוח ולב, לוגו" width={500} height={493} priority />
+            <Image className="hero-photo" src={michalPhoto} alt="מיכל רוניס בקליניקה" priority sizes="(max-width: 880px) 85vw, 380px" />
           </div>
         </div>
         <svg className="wave-divider" viewBox="0 0 1200 60" preserveAspectRatio="none" aria-hidden="true">
