@@ -317,3 +317,10 @@ export function whatsappHref(message?: string) {
   const base = `https://wa.me/${contact.whatsapp}`;
   return message ? `${base}?text=${encodeURIComponent(message)}` : base;
 }
+
+// Video from Michal's Facebook profile (vertical). Loaded only on click.
+export const videoTestimonial = {
+  facebookUrl: "https://www.facebook.com/reel/892391116534965/",
+  title: "המלצות בסרטון",
+  length: "כ-11 דקות",
+};
