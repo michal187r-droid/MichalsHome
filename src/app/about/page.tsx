@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { about } from "@/content/site";
-import { BookArt } from "@/components/icons";
+import Image from "next/image";
+import michalPhoto from "../../../public/michal.webp";
 
 export const metadata: Metadata = { title: "אודות מיכל" };
 
@@ -10,7 +11,7 @@ export default function AboutPage() {
     <div className="section">
       <div className="wrap about-grid">
         <div className="about-photo">
-          <BookArt />
+          <Image src={michalPhoto} alt="מיכל רוניס בקליניקה" priority sizes="(max-width: 820px) 100vw, 420px" />
         </div>
         <div>
           <span className="eyebrow-home">אודות</span>

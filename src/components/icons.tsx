@@ -62,24 +62,3 @@ export function WhatsAppIcon({ size = 28 }: { size?: number }) {
     </svg>
   );
 }
-
-export function BookArt() {
-  return (
-    <svg viewBox="0 0 200 220" width="76%" fill="none" aria-hidden="true">
-      <path
-        d="M100 60 C80 45 55 38 30 38 V150 C55 150 80 157 100 172 C120 157 145 150 170 150 V38 C145 38 120 45 100 60 Z"
-        fill="var(--color-card)"
-        stroke="var(--color-teal)"
-        strokeWidth="2.2"
-        strokeLinejoin="round"
-      />
-      <path d="M100 60 V172" stroke="var(--color-teal)" strokeWidth="2.2" strokeLinecap="round" />
-      <path d="M100 60 C100 40 97 22 100 8" stroke="var(--color-sage)" strokeWidth="2.4" strokeLinecap="round" fill="none" />
-      <ellipse cx="90" cy="26" rx="10" ry="6" fill="var(--color-sage-soft)" stroke="var(--color-sage)" strokeWidth="1.6" transform="rotate(-25 90 26)" />
-      <ellipse cx="112" cy="18" rx="9" ry="5.5" fill="var(--color-coral-soft)" stroke="var(--color-coral)" strokeWidth="1.6" transform="rotate(20 112 18)" />
-      <circle cx="150" cy="55" r="4" fill="var(--color-amber)" />
-      <circle cx="45" cy="72" r="3" fill="var(--color-sky)" />
-      <circle cx="158" cy="110" r="3" fill="var(--color-lavender)" />
-    </svg>
-  );
-}
