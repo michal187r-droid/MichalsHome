@@ -26,6 +26,7 @@ export default function AboutPage() {
         <div>
           <span className="eyebrow-home">אודות · מיכל רוניס</span>
           <h1 className="about-headline">{about.headline}</h1>
+          <p className="hero-tagline">{about.lead}</p>
           {about.paragraphs.map((p) => (
             <p key={p}>{p}</p>
           ))}
