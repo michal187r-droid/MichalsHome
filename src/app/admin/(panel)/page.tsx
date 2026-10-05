@@ -3,9 +3,10 @@ import { getAdmin } from "@/lib/supabase/server";
 
 export default async function AdminHome() {
   const admin = (await getAdmin())!;
-  const [{ count: newLeads }, { count: openQuestions }] = await Promise.all([
+  const [{ count: newLeads }, { count: openQuestions }, { count: doneTasks }] = await Promise.all([
     admin.supabase.from("leads").select("id", { count: "exact", head: true }).eq("status", "new"),
     admin.supabase.from("questions").select("id", { count: "exact", head: true }).is("answer", null),
+    admin.supabase.from("tasks").select("id", { count: "exact", head: true }).eq("status", "done").eq("seen_by_admin", false),
   ]);
 
   return (
@@ -19,6 +20,10 @@ export default async function AdminHome() {
         <Link href="/admin/questions" className="admin-tile">
           <span className="tile-num">{openQuestions ?? 0}</span>
           <span>שאלות שמחכות לתשובה</span>
+        </Link>
+        <Link href="/admin/students" className="admin-tile">
+          <span className="tile-num">{doneTasks ?? 0}</span>
+          <span>משימות שתלמידים סיימו</span>
         </Link>
         <Link href="/admin/content" className="admin-tile">
           <span className="tile-num">✏️</span>

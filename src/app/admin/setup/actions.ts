@@ -2,7 +2,7 @@
 
 import postgres from "postgres";
 import { createClient } from "@supabase/supabase-js";
-import { stage2Migration } from "@/lib/db/migration";
+import { migrations } from "@/lib/db/migration";
 import { supabaseUrl } from "@/lib/supabase/config";
 
 export type SetupState = { ok: boolean; message: string } | null;
@@ -24,7 +24,7 @@ export async function runMigration(): Promise<SetupState> {
 
   const sql = postgres(url, { ssl: "require", max: 1, prepare: false });
   try {
-    await sql.unsafe(stage2Migration);
+    for (const m of migrations) await sql.unsafe(m);
     return { ok: true, message: "מסד הנתונים מוכן ✅" };
   } catch (e) {
     return { ok: false, message: `שגיאה: ${(e as Error).message}` };

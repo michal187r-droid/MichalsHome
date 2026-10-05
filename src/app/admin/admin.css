@@ -93,3 +93,8 @@
 .setup-step h2 { font-size:1.05rem; }
 .confirm-row { display:inline-flex; gap:8px; align-items:center; flex-wrap:wrap; font-weight:700; color:var(--color-coral); }
 .admin-btn.danger.solid { background:var(--color-coral); color:#fff; }
+.task-answer-label { font-weight:800; color:var(--color-teal-deep); margin:12px 0 0; font-size:.9rem; }
+.item-message.feedback { background:var(--color-sage-soft); }
+details.admin-item > summary { cursor:pointer; list-style:none; }
+details.admin-item > summary::-webkit-details-marker { display:none; }
+.student .item-form.stacked .admin-btn { font-size:1.05rem; padding:11px 22px; }

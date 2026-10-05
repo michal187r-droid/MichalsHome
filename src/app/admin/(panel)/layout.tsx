@@ -9,9 +9,10 @@ export default async function PanelLayout({ children }: LayoutProps<"/admin">) {
   const admin = await getAdmin();
   if (!admin) redirect("/admin/login");
 
-  const [{ count: newLeads }, { count: openQuestions }] = await Promise.all([
+  const [{ count: newLeads }, { count: openQuestions }, { count: doneTasks }] = await Promise.all([
     admin.supabase.from("leads").select("id", { count: "exact", head: true }).eq("status", "new"),
     admin.supabase.from("questions").select("id", { count: "exact", head: true }).is("answer", null),
+    admin.supabase.from("tasks").select("id", { count: "exact", head: true }).eq("status", "done").eq("seen_by_admin", false),
   ]);
 
   return (
@@ -26,6 +27,9 @@ export default async function PanelLayout({ children }: LayoutProps<"/admin">) {
           </Link>
           <Link href="/admin/questions">
             שאלות {openQuestions ? <span className="badge">{openQuestions}</span> : null}
+          </Link>
+          <Link href="/admin/students">
+            תלמידים {doneTasks ? <span className="badge">{doneTasks}</span> : null}
           </Link>
           <Link href="/admin/content">עריכת האתר</Link>
           <a href="/" target="_blank" rel="noopener">

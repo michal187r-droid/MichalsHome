@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath, updateTag } from "next/cache";
 import { getAdmin, serverClient } from "@/lib/supabase/server";
+import { serviceClient } from "@/lib/supabase/service";
 import { CONTENT_TAG, QUESTIONS_TAG } from "@/lib/supabase/public";
 import { CONTENT_KEYS, type ContentKey } from "@/lib/content";
 
@@ -119,4 +120,96 @@ export async function resetContent(key: string): Promise<ActionState> {
   updateTag(CONTENT_TAG);
   revalidatePath("/", "layout");
   return { ok: true, message: "הוחזר לטקסט המקורי." };
+}
+
+// ---------- students & tasks ----------
+
+export async function createStudent(_prev: ActionState, data: FormData): Promise<ActionState> {
+  await requireAdmin();
+  const service = serviceClient();
+  if (!service) return { ok: false, message: "חסר מפתח ניהול של מסד הנתונים." };
+
+  const name = String(data.get("name") ?? "").trim().slice(0, 80);
+  const email = String(data.get("email") ?? "").trim().toLowerCase();
+  const password = String(data.get("password") ?? "");
+  if (!name || !email.includes("@")) return { ok: false, message: "נא למלא שם ומייל." };
+  if (password.length < 8) return { ok: false, message: "הסיסמה צריכה להיות באורך 8 תווים לפחות." };
+
+  const { data: created, error } = await service.auth.admin.createUser({ email, password, email_confirm: true });
+  if (error || !created.user) {
+    const taken = /already|registered|exists/i.test(error?.message ?? "");
+    return {
+      ok: false,
+      message: taken
+        ? "המייל הזה כבר רשום. לאחים עם אותו מייל של הורה אפשר להוסיף +שם לפני ה-@, למשל parent+noa@gmail.com."
+        : "יצירת החשבון נכשלה.",
+    };
+  }
+  const { error: rowError } = await service
+    .from("students")
+    .insert({ user_id: created.user.id, name, login_email: email });
+  if (rowError) {
+    await service.auth.admin.deleteUser(created.user.id);
+    return { ok: false, message: "שמירת התלמיד נכשלה." };
+  }
+  revalidatePath("/admin", "layout");
+  return { ok: true, message: `${name} נוסף/ה ✅` };
+}
+
+export async function resetStudentPassword(_prev: ActionState, data: FormData): Promise<ActionState> {
+  const supabase = await requireAdmin();
+  const service = serviceClient();
+  if (!service) return { ok: false, message: "חסר מפתח ניהול של מסד הנתונים." };
+  const password = String(data.get("password") ?? "");
+  if (password.length < 8) return { ok: false, message: "הסיסמה צריכה להיות באורך 8 תווים לפחות." };
+
+  const { data: student } = await supabase.from("students").select("user_id").eq("id", String(data.get("id"))).single();
+  if (!student) return { ok: false, message: "התלמיד לא נמצא." };
+  const { error } = await service.auth.admin.updateUserById(student.user_id, { password });
+  return error ? { ok: false, message: "שינוי הסיסמה נכשל." } : { ok: true, message: "הסיסמה עודכנה ✅" };
+}
+
+export async function deleteStudent(data: FormData) {
+  const supabase = await requireAdmin();
+  const service = serviceClient();
+  const { data: student } = await supabase.from("students").select("user_id").eq("id", String(data.get("id"))).single();
+  // Removing the login account also removes the student and their tasks.
+  if (student && service) await service.auth.admin.deleteUser(student.user_id);
+  revalidatePath("/admin", "layout");
+  redirect("/admin/students");
+}
+
+export async function addTask(data: FormData) {
+  const supabase = await requireAdmin();
+  const title = String(data.get("title") ?? "").trim().slice(0, 200);
+  if (!title) return;
+  await supabase.from("tasks").insert({
+    student_id: String(data.get("student_id")),
+    title,
+    instructions: String(data.get("instructions") ?? "").trim().slice(0, 6000) || null,
+    due_date: String(data.get("due_date") ?? "") || null,
+    answer_requested: data.get("answer_requested") === "on",
+  });
+  revalidatePath("/admin", "layout");
+}
+
+export async function saveFeedback(data: FormData) {
+  const supabase = await requireAdmin();
+  await supabase
+    .from("tasks")
+    .update({ feedback: String(data.get("feedback") ?? "").trim().slice(0, 4000) || null })
+    .eq("id", String(data.get("id")));
+  revalidatePath("/admin", "layout");
+}
+
+export async function reopenTask(data: FormData) {
+  const supabase = await requireAdmin();
+  await supabase.from("tasks").update({ status: "open", done_at: null }).eq("id", String(data.get("id")));
+  revalidatePath("/admin", "layout");
+}
+
+export async function deleteTask(data: FormData) {
+  const supabase = await requireAdmin();
+  await supabase.from("tasks").delete().eq("id", String(data.get("id")));
+  revalidatePath("/admin", "layout");
 }

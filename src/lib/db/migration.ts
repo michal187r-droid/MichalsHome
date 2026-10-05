@@ -1,5 +1,5 @@
-// Database setup for stage 2 (tables, access rules). Safe to run more than once.
-// Applied from /admin/setup on a preview deployment.
+// Database setup (tables, access rules). Every statement is safe to re-run.
+// Applied in order from /admin/setup on a preview deployment.
 export const stage2Migration = `-- Stage 2: editable content, contact-form leads, questions & answers.
 -- Every statement is safe to re-run.
 
@@ -93,3 +93,70 @@ grant select on public.published_questions to anon, authenticated;
 -- Visitors only insert; they never read leads or unpublished questions back.
 grant insert on public.leads, public.questions to anon;
 `;
+
+export const stage3Migration = `-- Stage 3: student area – students, tasks, completion by the student.
+
+create table if not exists public.students (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null unique references auth.users (id) on delete cascade,
+  name text not null check (char_length(name) between 1 and 80),
+  login_email text not null,
+  created_at timestamptz not null default now()
+);
+alter table public.students enable row level security;
+drop policy if exists "admin manages students" on public.students;
+create policy "admin manages students" on public.students
+  for all to authenticated using (public.is_admin()) with check (public.is_admin());
+drop policy if exists "student reads self" on public.students;
+create policy "student reads self" on public.students
+  for select to authenticated using (user_id = auth.uid());
+
+create table if not exists public.tasks (
+  id uuid primary key default gen_random_uuid(),
+  student_id uuid not null references public.students (id) on delete cascade,
+  created_at timestamptz not null default now(),
+  title text not null check (char_length(title) between 1 and 200),
+  instructions text check (instructions is null or char_length(instructions) <= 6000),
+  due_date date,
+  answer_requested boolean not null default false,
+  status text not null default 'open' check (status in ('open', 'done')),
+  answer text check (answer is null or char_length(answer) <= 10000),
+  done_at timestamptz,
+  seen_by_admin boolean not null default true,
+  feedback text check (feedback is null or char_length(feedback) <= 4000)
+);
+create index if not exists tasks_student_idx on public.tasks (student_id);
+alter table public.tasks enable row level security;
+drop policy if exists "admin manages tasks" on public.tasks;
+create policy "admin manages tasks" on public.tasks
+  for all to authenticated using (public.is_admin()) with check (public.is_admin());
+drop policy if exists "student reads own tasks" on public.tasks;
+create policy "student reads own tasks" on public.tasks
+  for select to authenticated using (
+    exists (select 1 from public.students s where s.id = tasks.student_id and s.user_id = auth.uid())
+  );
+
+-- Students never update rows directly; this function only touches the
+-- answer/status of their own task and flags it for Michal.
+create or replace function public.complete_task(p_task uuid, p_answer text)
+returns boolean
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  update public.tasks t
+     set status = 'done',
+         answer = nullif(left(coalesce(p_answer, ''), 10000), ''),
+         done_at = now(),
+         seen_by_admin = false
+   where t.id = p_task
+     and exists (select 1 from public.students s where s.id = t.student_id and s.user_id = auth.uid());
+  return found;
+end;
+$$;
+revoke all on function public.complete_task(uuid, text) from public, anon;
+grant execute on function public.complete_task(uuid, text) to authenticated;
+`;
+
+export const migrations = [stage2Migration, stage3Migration];
