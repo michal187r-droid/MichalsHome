@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { about, categories, hero, testimonials } from "@/content/site";
+import { categories, hero, testimonials } from "@/content/site";
 import { CategoryIcon } from "@/components/icons";
 import Testimonials from "@/components/Testimonials";
 import michalPhoto from "../../public/michal.webp";
@@ -49,14 +49,6 @@ export default function Home() {
             <p>כמה מסלולים, כל אחד מותאם לצורך אחר. אפשר להיכנס ישר לקטגוריה הרלוונטית, בלי לחפש.</p>
           </div>
           <div className="cat-grid">
-            <Link className="cat-card" href="/about">
-              <span className="cat-mark" aria-hidden="true">
-                <CategoryIcon name="leaf" />
-              </span>
-              <h3>אודות מיכל</h3>
-              <p>{about.blurb}</p>
-              <span className="go">לפרטים ←</span>
-            </Link>
             {categories.map((c) => (
               <Link key={c.slug} className="cat-card" href={`/services/${c.slug}`}>
                 <span className="cat-mark" aria-hidden="true">

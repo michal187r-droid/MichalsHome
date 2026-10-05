@@ -44,14 +44,6 @@ export function CategoryIcon({ name }: { name: IconName }) {
           <path d="M14.3 15.3v2A2.5 2.5 0 0 1 11.8 20h-3l-2 2.2V20H6.5A2.5 2.5 0 0 1 4 17.5v-4A2.5 2.5 0 0 1 6.5 11h1.8" />
         </svg>
       );
-    case "leaf":
-      return (
-        <svg {...stroke}>
-          <path d="M19 5c-3.5 0-7.5 1.8-10 4.3C6.7 11.6 5.4 15 5 19c4-.4 7.4-1.7 9.7-4C17.2 12.5 19 8.5 19 5Z" />
-          <path d="M9.5 14.5 4.5 19.5" />
-          <path d="M12 9c1 1.5 1 3.5 0 5" />
-        </svg>
-      );
   }
 }
 

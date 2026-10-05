@@ -1,7 +1,7 @@
 // All site text lives here, separate from the design.
 // In stage 2 this moves to a database edited from the admin panel.
 
-export type IconName = "book" | "notebook" | "cap" | "chat" | "leaf";
+export type IconName = "book" | "notebook" | "cap" | "chat";
 
 export type InfoRow = { label: string; value: string };
 export type Step = { title: string; text: string };
@@ -52,7 +52,6 @@ export const hero = {
 };
 
 export const about = {
-  blurb: "מעל 20 שנה בחינוך, ואמונה אחת: כל ילד רוצה להצליח.",
   headline: "מאחורי 'הוא פשוט לא מתאמץ' מסתתר כמעט תמיד מוח שלומד אחרת. אני יודעת איך המוח שלו עובד – ואיך למצוא את הדרך שלו להצליח.",
   lead: "הוראה מותאמת שפתית-רגשית, המבוססת על נוירופדגוגיה – ההבנה של איך המוח לומד.",
   paragraphs: [
