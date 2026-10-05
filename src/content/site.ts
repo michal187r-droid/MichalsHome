@@ -1,5 +1,5 @@
-// All site text lives here, separate from the design.
-// In stage 2 this moves to a database edited from the admin panel.
+// Built-in site text. The admin panel saves edits to the database; anything
+// not edited there falls back to the text in this file.
 
 export type IconName = "book" | "notebook" | "cap" | "chat";
 
@@ -332,10 +332,6 @@ export const categories: Category[] = [
   },
 ];
 
-export function getCategory(slug: string) {
-  return categories.find((c) => c.slug === slug);
-}
-
 export type Testimonial = {
   /** Full excerpt, shown on the testimonials page. */
   quote: string;
@@ -388,10 +384,6 @@ export const testimonials: Testimonial[] = [
   },
 ];
 
-export function whatsappHref(message?: string) {
-  const base = `https://wa.me/${contact.whatsapp}`;
-  return message ? `${base}?text=${encodeURIComponent(message)}` : base;
-}
 
 // Video from Michal's Facebook profile (vertical). Loaded only on click.
 export const videoTestimonial = {

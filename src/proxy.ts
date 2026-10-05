@@ -1,0 +1,27 @@
+import { createServerClient } from "@supabase/ssr";
+import { NextResponse, type NextRequest } from "next/server";
+import { supabaseAnonKey, supabaseConfigured, supabaseUrl } from "@/lib/supabase/config";
+
+// Keeps the admin's login session fresh. Authorization itself is checked in
+// the admin layout and in every server action.
+export async function proxy(request: NextRequest) {
+  let response = NextResponse.next({ request });
+  if (!supabaseConfigured) return response;
+
+  const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+    cookies: {
+      getAll: () => request.cookies.getAll(),
+      setAll: (toSet) => {
+        toSet.forEach(({ name, value }) => request.cookies.set(name, value));
+        response = NextResponse.next({ request });
+        toSet.forEach(({ name, value, options }) => response.cookies.set(name, value, options));
+      },
+    },
+  });
+  await supabase.auth.getUser();
+  return response;
+}
+
+export const config = {
+  matcher: ["/admin/:path*"],
+};

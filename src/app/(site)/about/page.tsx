@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { about } from "@/content/site";
+import { getContent } from "@/lib/content";
 import Image from "next/image";
-import michalPhoto from "../../../public/michal.webp";
+import michalPhoto from "@/../public/michal.webp";
 
 export const metadata: Metadata = { title: "אודות מיכל" };
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const { about } = await getContent();
   return (
     <div className="section">
       <div className="wrap about-grid">

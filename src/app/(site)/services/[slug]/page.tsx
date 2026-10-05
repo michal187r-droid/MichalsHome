@@ -1,27 +1,29 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { categories, getCategory, whatsappHref } from "@/content/site";
+import { defaultContent, getCategory, getContent } from "@/lib/content";
+import { whatsappHref } from "@/lib/whatsapp";
 import { WhatsAppIcon } from "@/components/icons";
 
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return categories.map((c) => ({ slug: c.slug }));
+  return defaultContent.categories.map((c) => ({ slug: c.slug }));
 }
 
 export async function generateMetadata({ params }: PageProps<"/services/[slug]">): Promise<Metadata> {
   const { slug } = await params;
-  const c = getCategory(slug);
+  const c = await getCategory(slug);
   return c ? { title: c.title, description: c.tagline } : {};
 }
 
 export default async function CategoryPage({ params }: PageProps<"/services/[slug]">) {
   const { slug } = await params;
-  const c = getCategory(slug);
+  const c = await getCategory(slug);
   if (!c) notFound();
 
-  const wa = whatsappHref(c.whatsappMessage);
+  const { contact } = await getContent();
+  const wa = whatsappHref(contact.whatsapp, c.whatsappMessage);
   const contactHref = `/contact?service=${c.slug}`;
 
   return (

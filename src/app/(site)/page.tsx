@@ -1,11 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
-import { categories, hero, testimonials } from "@/content/site";
+import { getContent } from "@/lib/content";
 import { CategoryIcon } from "@/components/icons";
 import Testimonials from "@/components/Testimonials";
-import michalPhoto from "../../public/michal.webp";
+import michalPhoto from "@/../public/michal.webp";
 
-export default function Home() {
+export default async function Home() {
+  const { categories, hero, testimonials } = await getContent();
   return (
     <>
       <div className="hero">

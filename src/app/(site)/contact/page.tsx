@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
-import { categories, contact, whatsappHref } from "@/content/site";
+import { getContent } from "@/lib/content";
+import { whatsappHref } from "@/lib/whatsapp";
 import ContactForm from "@/components/ContactForm";
 
 export const metadata: Metadata = { title: "צור קשר" };
 
 export default async function ContactPage({ searchParams }: PageProps<"/contact">) {
   const { service } = await searchParams;
-  const initialService = typeof service === "string" ? service : "";
-  const serviceOptions = categories.map((c) => ({ value: c.slug, label: c.title }));
+  const { categories, contact } = await getContent();
+  const initialService = categories.find((c) => c.slug === service)?.title ?? "";
+  const serviceOptions = categories.map((c) => c.title);
 
   return (
     <div className="section">
@@ -18,7 +20,7 @@ export default async function ContactPage({ searchParams }: PageProps<"/contact"
           <p>מלאו את הפרטים ונחזור אליכם בהקדם, או צרו קשר ישירות בטלפון או בוואטסאפ.</p>
         </div>
         <div className="contact-grid">
-          <ContactForm services={serviceOptions} initialService={initialService} />
+          <ContactForm services={serviceOptions} initialService={initialService} whatsapp={contact.whatsapp} />
           <div className="contact-info-card">
             <div className="contact-row">
               <span className="ic">📞</span>
@@ -31,7 +33,7 @@ export default async function ContactPage({ searchParams }: PageProps<"/contact"
               <span className="ic">💬</span>
               <div>
                 <div>וואטסאפ</div>
-                <a href={whatsappHref()} target="_blank" rel="noopener">
+                <a href={whatsappHref(contact.whatsapp)} target="_blank" rel="noopener">
                   {contact.phone}
                 </a>
               </div>

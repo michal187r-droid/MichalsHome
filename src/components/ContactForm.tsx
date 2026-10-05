@@ -1,83 +1,82 @@
 "use client";
 
-import { contact, whatsappHref } from "@/content/site";
+import { useActionState } from "react";
+import { submitLead } from "@/app/(site)/actions";
+import { whatsappHref } from "@/lib/whatsapp";
 
-type Option = { value: string; label: string };
+type Props = { services: string[]; initialService: string; whatsapp: string };
 
-// Until the site has a backend (stage 2), the form hands the message to
-// WhatsApp or the visitor's email app, pre-filled with what they typed.
-export default function ContactForm({ services, initialService }: { services: Option[]; initialService: string }) {
-  function buildMessage(form: HTMLFormElement) {
-    const data = new FormData(form);
-    const name = String(data.get("name") || "").trim();
-    const phone = String(data.get("phone") || "").trim();
-    const email = String(data.get("email") || "").trim();
-    const serviceValue = String(data.get("service") || "");
-    const service = services.find((s) => s.value === serviceValue)?.label || (serviceValue === "other" ? "אחר" : "");
-    const message = String(data.get("message") || "").trim();
+export default function ContactForm({ services, initialService, whatsapp }: Props) {
+  const [state, formAction, pending] = useActionState(submitLead, null);
 
-    const lines = [
-      "שלום מיכל, פנייה מהאתר:",
-      `שם: ${name}`,
-      `טלפון: ${phone}`,
-      email && `אימייל: ${email}`,
-      service && `שירות: ${service}`,
-      message && `הודעה: ${message}`,
-    ].filter(Boolean);
-    return { name, text: lines.join("\n") };
-  }
-
-  function send(e: React.MouseEvent<HTMLButtonElement>, via: "whatsapp" | "email") {
+  // Same details, sent as a ready-made WhatsApp message instead.
+  function sendWhatsApp(e: React.MouseEvent<HTMLButtonElement>) {
     const form = e.currentTarget.form!;
     if (!form.reportValidity()) return;
-    const { name, text } = buildMessage(form);
-    if (via === "whatsapp") {
-      window.open(whatsappHref(text), "_blank", "noopener");
-    } else {
-      const subject = encodeURIComponent(`פנייה מהאתר – ${name}`);
-      window.location.href = `mailto:${contact.email}?subject=${subject}&body=${encodeURIComponent(text)}`;
-    }
+    const data = new FormData(form);
+    const field = (k: string) => String(data.get(k) || "").trim();
+    const lines = [
+      "שלום מיכל, פנייה מהאתר:",
+      `שם: ${field("name")}`,
+      `טלפון: ${field("phone")}`,
+      field("email") && `אימייל: ${field("email")}`,
+      field("service") && `שירות: ${field("service")}`,
+      field("message") && `הודעה: ${field("message")}`,
+    ].filter(Boolean);
+    window.open(whatsappHref(whatsapp, lines.join("\n")), "_blank", "noopener");
+  }
+
+  if (state?.ok) {
+    return (
+      <div className="contact-form form-success" role="status">
+        <h2>תודה, הפנייה התקבלה! 💛</h2>
+        <p>אחזור אליכם בהקדם. אם זה דחוף, אפשר גם לכתוב לי בוואטסאפ.</p>
+      </div>
+    );
   }
 
   return (
-    <form className="contact-form" onSubmit={(e) => e.preventDefault()}>
+    <form className="contact-form" action={formAction}>
       <div className="field">
         <label htmlFor="cf-name">שם מלא</label>
-        <input id="cf-name" name="name" type="text" required />
+        <input id="cf-name" name="name" type="text" required maxLength={120} />
       </div>
       <div className="field">
         <label htmlFor="cf-phone">טלפון</label>
-        <input id="cf-phone" name="phone" type="tel" required />
+        <input id="cf-phone" name="phone" type="tel" required maxLength={40} />
       </div>
       <div className="field">
         <label htmlFor="cf-email">אימייל</label>
-        <input id="cf-email" name="email" type="email" />
+        <input id="cf-email" name="email" type="email" maxLength={200} />
       </div>
       <div className="field">
         <label htmlFor="cf-service">באיזה שירות מעוניינים?</label>
         <select id="cf-service" name="service" defaultValue={initialService}>
           <option value="">בחרו קטגוריה</option>
           {services.map((s) => (
-            <option key={s.value} value={s.value}>
-              {s.label}
+            <option key={s} value={s}>
+              {s}
             </option>
           ))}
-          <option value="other">אחר</option>
+          <option value="אחר">אחר</option>
         </select>
       </div>
       <div className="field">
         <label htmlFor="cf-msg">הודעה</label>
-        <textarea id="cf-msg" name="message" placeholder="ספרו לנו קצת על הצורך..."></textarea>
+        <textarea id="cf-msg" name="message" maxLength={4000} placeholder="ספרו לי קצת על הצורך..."></textarea>
       </div>
+      {/* Hidden from people; bots fill it in. */}
+      <input type="text" name="website" tabIndex={-1} autoComplete="off" className="hp-field" aria-hidden="true" />
+      {state?.error && <p className="form-error" role="alert">{state.error}</p>}
       <div className="form-actions">
-        <button type="button" className="btn btn-wa" onClick={(e) => send(e, "whatsapp")}>
-          שליחה בוואטסאפ
+        <button type="submit" className="btn btn-primary" disabled={pending}>
+          {pending ? "שולח…" : "שליחת פנייה"}
         </button>
-        <button type="button" className="btn btn-primary" onClick={(e) => send(e, "email")}>
-          שליחה במייל
+        <button type="button" className="btn btn-wa" onClick={sendWhatsApp}>
+          או שליחה בוואטסאפ
         </button>
       </div>
-      <p className="form-note">הפרטים שמילאתם יועברו להודעה מוכנה בוואטסאפ או במייל – רק ללחוץ שליחה.</p>
+      <p className="form-note">הפרטים מגיעים רק אליי, ומשמשים רק כדי לחזור אליכם.</p>
     </form>
   );
 }

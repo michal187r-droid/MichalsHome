@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { categories } from "@/content/site";
+type Service = { slug: string; title: string };
 
 const links = [
   { href: "/", label: "בית" },
@@ -12,10 +12,11 @@ const links = [
 ];
 const trailingLinks = [
   { href: "/testimonials", label: "המלצות" },
+  { href: "/questions", label: "שאלות ותשובות" },
   { href: "/contact", label: "צור קשר" },
 ];
 
-export default function Header() {
+export default function Header({ services }: { services: Service[] }) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [servicesOpen, setServicesOpen] = useState(false);
@@ -65,7 +66,7 @@ export default function Header() {
                 השירותים שלנו
               </button>
               <div className="services-panel">
-                {categories.map((c) => (
+                {services.map((c) => (
                   <Link key={c.slug} href={`/services/${c.slug}`}>
                     {c.title}
                   </Link>

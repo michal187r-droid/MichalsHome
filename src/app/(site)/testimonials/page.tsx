@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
-import { testimonials, videoTestimonial } from "@/content/site";
+import { getContent } from "@/lib/content";
 import Testimonials from "@/components/Testimonials";
 import FacebookVideo from "@/components/FacebookVideo";
 
 export const metadata: Metadata = { title: "המלצות" };
 
-export default function TestimonialsPage() {
+export default async function TestimonialsPage() {
+  const { testimonials, video: videoTestimonial } = await getContent();
   return (
     <div className="section">
       <div className="wrap">

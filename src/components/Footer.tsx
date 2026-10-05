@@ -1,9 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
-import { categories, whatsappHref } from "@/content/site";
+import { whatsappHref } from "@/lib/whatsapp";
 import { WhatsAppIcon } from "./icons";
 
-export default function Footer() {
+type Service = { slug: string; title: string };
+
+export default function Footer({ services, whatsapp }: { services: Service[]; whatsapp: string }) {
   return (
     <>
       <svg className="wave-divider-footer" viewBox="0 0 1200 60" preserveAspectRatio="none" aria-hidden="true">
@@ -18,7 +20,7 @@ export default function Footer() {
           <div>
             <h4>השירותים שלנו</h4>
             <ul>
-              {categories.map((c) => (
+              {services.map((c) => (
                 <li key={c.slug}>
                   <Link href={`/services/${c.slug}`}>{c.title}</Link>
                 </li>
@@ -30,6 +32,7 @@ export default function Footer() {
             <ul>
               <li><Link href="/about">אודות מיכל</Link></li>
               <li><Link href="/testimonials">המלצות</Link></li>
+              <li><Link href="/questions">שאלות ותשובות</Link></li>
               <li><Link href="/contact">צור קשר</Link></li>
             </ul>
           </div>
@@ -38,7 +41,7 @@ export default function Footer() {
       </footer>
       <a
         className="wa-float"
-        href={whatsappHref("שלום מיכל, הגעתי מהאתר ואשמח לפרטים.")}
+        href={whatsappHref(whatsapp, "שלום מיכל, הגעתי מהאתר ואשמח לפרטים.")}
         target="_blank"
         rel="noopener"
         aria-label="שליחת הודעה בוואטסאפ"
