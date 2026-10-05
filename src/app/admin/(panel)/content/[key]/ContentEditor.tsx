@@ -28,13 +28,12 @@ export default function ContentEditor({ sectionKey, initial }: { sectionKey: Con
       if (r?.ok) setDirty(false);
     });
 
-  const reset = () => {
-    if (!window.confirm("להחזיר את החלק הזה לטקסט המקורי? כל השינויים שנשמרו בו יימחקו.")) return;
+  const [askReset, setAskReset] = useState(false);
+  const reset = () =>
     startTransition(async () => {
       setResult(await resetContent(sectionKey));
       window.location.reload();
     });
-  };
 
   return (
     <div className="editor">
@@ -53,9 +52,21 @@ export default function ContentEditor({ sectionKey, initial }: { sectionKey: Con
       <div className="editor-save">
         {result?.message && <span className={result.ok ? "admin-ok" : "admin-error"}>{result.message}</span>}
         {dirty && !result && <span className="admin-dirty">יש שינויים שלא נשמרו</span>}
-        <button type="button" className="admin-btn ghost" onClick={reset} disabled={pending}>
-          החזרה לטקסט המקורי
-        </button>
+        {askReset ? (
+          <span className="confirm-row">
+            <span>למחוק את כל השינויים בחלק הזה?</span>
+            <button type="button" className="admin-btn danger solid" onClick={reset} disabled={pending}>
+              כן, להחזיר
+            </button>
+            <button type="button" className="admin-btn ghost" onClick={() => setAskReset(false)}>
+              ביטול
+            </button>
+          </span>
+        ) : (
+          <button type="button" className="admin-btn ghost" onClick={() => setAskReset(true)} disabled={pending}>
+            החזרה לטקסט המקורי
+          </button>
+        )}
         <button type="button" className="admin-btn primary" onClick={save} disabled={pending || !dirty}>
           {pending ? "שומרת…" : "שמירה"}
         </button>
@@ -170,7 +181,7 @@ function StringList(props: { label: string; itemLabel: string; multiline?: boole
             index={i}
             count={value.length}
             onMove={(to) => onChange(move(value, i, to))}
-            onRemove={() => window.confirm(`למחוק את ה${itemLabel}?`) && onChange(value.filter((_, j) => j !== i))}
+            onRemove={() => onChange(value.filter((_, j) => j !== i))}
           />
         </div>
       ))}
@@ -202,7 +213,7 @@ function ObjectList(props: {
               index={i}
               count={value.length}
               onMove={(to) => onChange(move(value, i, to))}
-              onRemove={() => window.confirm(`למחוק את ה${itemLabel}?`) && onChange(value.filter((_, j) => j !== i))}
+              onRemove={() => onChange(value.filter((_, j) => j !== i))}
             />
           )}
           <ObjectFields fields={fields} value={item} onChange={(v) => onChange(value.map((x, j) => (j === i ? v : x)))} />
