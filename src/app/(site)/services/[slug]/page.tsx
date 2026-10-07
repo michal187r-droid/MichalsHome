@@ -31,7 +31,7 @@ export default async function CategoryPage({ params }: PageProps<"/services/[slu
       <div className="wrap">
         <div className="cat-hero">
           <span className="eyebrow-home">
-            <Link href="/#services">השירותים שלנו</Link>
+            <Link href="/#services">השירותים שלי</Link>
           </span>
           <h1>{c.title}</h1>
           <p className="hero-tagline">{c.tagline}</p>

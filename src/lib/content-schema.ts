@@ -106,7 +106,7 @@ export const sections: Section[] = [
   },
   {
     key: "about",
-    title: "אודות מיכל",
+    title: "עמוד אודותיי",
     description: "הכותרת, הטקסט, ההשכלה וההסמכות.",
     root: {
       kind: "object",

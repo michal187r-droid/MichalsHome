@@ -16,7 +16,7 @@
   --color-lavender: #6B8F5A; --color-lavender-soft: #E2ECD9;
   --color-border: rgba(28,60,58,0.14);
   --shadow-soft: 0 16px 36px -20px rgba(20,45,43,0.25);
-  --font-display: var(--font-frank), 'Frank Ruhl Libre', 'Times New Roman', serif;
+  --font-display: var(--font-assistant), 'Assistant', 'Segoe UI', Tahoma, sans-serif;
   --font-body: var(--font-assistant), 'Assistant', 'Segoe UI', Tahoma, sans-serif;
   color-scheme: light;
 }
@@ -47,7 +47,7 @@ body { margin:0; background:var(--color-bg); color:var(--color-ink); font-family
 img { max-width:100%; display:block; }
 a { color: inherit; }
 h1,h2,h3 { font-family:var(--font-display); font-weight:700; margin:0 0 .5em; color:var(--color-teal-deep); letter-spacing:.01em; }
-h1 { font-size:clamp(2.1rem,5vw,3.4rem); line-height:1.15; font-weight:900; }
+h1 { font-size:clamp(2.1rem,5vw,3.4rem); line-height:1.15; font-weight:800; }
 h2 { font-size:clamp(1.5rem,3.4vw,2.15rem); }
 h3 { font-size:clamp(1.15rem,2.2vw,1.4rem); }
 p { margin:0 0 1em; color:var(--color-ink-soft); max-width:62ch; }

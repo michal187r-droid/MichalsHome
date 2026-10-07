@@ -45,7 +45,7 @@ export default async function Home() {
       <div className="section" id="services">
         <div className="wrap">
           <div className="section-head">
-            <span className="eyebrow-home">השירותים שלנו</span>
+            <span className="eyebrow-home">השירותים שלי</span>
             <h2>כל קושי – עם כתובת ברורה משלו</h2>
             <p>כמה מסלולים, כל אחד מותאם לצורך אחר. אפשר להיכנס ישר לקטגוריה הרלוונטית, בלי לחפש.</p>
           </div>

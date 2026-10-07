@@ -8,7 +8,7 @@ type Service = { slug: string; title: string };
 
 const links = [
   { href: "/", label: "בית" },
-  { href: "/about", label: "אודות מיכל" },
+  { href: "/about", label: "אודותיי" },
 ];
 const trailingLinks = [
   { href: "/testimonials", label: "המלצות" },
@@ -63,7 +63,7 @@ export default function Header({ services }: { services: Service[] }) {
                 aria-expanded={servicesOpen}
                 onClick={() => setServicesOpen((o) => !o)}
               >
-                השירותים שלנו
+                השירותים שלי
               </button>
               <div className="services-panel">
                 {services.map((c) => (

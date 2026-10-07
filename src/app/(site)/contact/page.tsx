@@ -16,8 +16,8 @@ export default async function ContactPage({ searchParams }: PageProps<"/contact"
       <div className="wrap">
         <div className="section-head">
           <span className="eyebrow-home">צור קשר</span>
-          <h1>נשמח לשמוע מה מעסיק אתכם</h1>
-          <p>מלאו את הפרטים ונחזור אליכם בהקדם, או צרו קשר ישירות בטלפון או בוואטסאפ.</p>
+          <h1>אשמח לשמוע מה מעסיק אתכם</h1>
+          <p>מלאו את הפרטים ואחזור אליכם בהקדם, או צרו איתי קשר ישירות בטלפון או בוואטסאפ.</p>
         </div>
         <div className="contact-grid">
           <ContactForm services={serviceOptions} initialService={initialService} whatsapp={contact.whatsapp} />

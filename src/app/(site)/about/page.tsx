@@ -4,7 +4,7 @@ import { getContent } from "@/lib/content";
 import Image from "next/image";
 import michalPhoto from "@/../public/michal.webp";
 
-export const metadata: Metadata = { title: "אודות מיכל" };
+export const metadata: Metadata = { title: "אודותיי" };
 
 export default async function AboutPage() {
   const { about } = await getContent();

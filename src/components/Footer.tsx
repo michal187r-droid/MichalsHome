@@ -18,7 +18,7 @@ export default function Footer({ services, whatsapp }: { services: Service[]; wh
             <p>למידה אישית במקצועות רבי‐מלל, הוראה מותאמת שפתית-רגשית לילדים ובני נוער.</p>
           </div>
           <div>
-            <h4>השירותים שלנו</h4>
+            <h4>השירותים שלי</h4>
             <ul>
               {services.map((c) => (
                 <li key={c.slug}>
@@ -30,7 +30,7 @@ export default function Footer({ services, whatsapp }: { services: Service[]; wh
           <div>
             <h4>ניווט</h4>
             <ul>
-              <li><Link href="/about">אודות מיכל</Link></li>
+              <li><Link href="/about">אודותיי</Link></li>
               <li><Link href="/testimonials">המלצות</Link></li>
               <li><Link href="/questions">שאלות ותשובות</Link></li>
               <li><Link href="/contact">צור קשר</Link></li>
