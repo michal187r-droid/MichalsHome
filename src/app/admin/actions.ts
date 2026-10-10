@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { revalidatePath, updateTag } from "next/cache";
 import { getAdmin, serverClient } from "@/lib/supabase/server";
 import { serviceClient } from "@/lib/supabase/service";
@@ -24,6 +25,32 @@ export async function signIn(_prev: ActionState, data: FormData): Promise<Action
     password: String(data.get("password") ?? ""),
   });
   if (error) return { ok: false, message: "המייל או הסיסמה לא נכונים." };
+  redirect("/admin");
+}
+
+/** Emails a link for choosing a new password. Same answer whether or not the email exists. */
+export async function requestPasswordReset(_prev: ActionState, data: FormData): Promise<ActionState> {
+  const email = String(data.get("email") ?? "").trim().toLowerCase();
+  if (!email.includes("@")) return { ok: false, message: "נא לכתוב את כתובת המייל." };
+  const h = await headers();
+  const origin = `${h.get("x-forwarded-proto") ?? "https"}://${h.get("host")}`;
+  const supabase = await serverClient();
+  const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${origin}/admin/auth/confirm` });
+  if (error?.status === 429) return { ok: false, message: "נשלחו כבר כמה מיילים. נסי שוב בעוד שעה." };
+  return { ok: true, message: "אם הכתובת רשומה, נשלח אלייך מייל עם קישור לבחירת סיסמה חדשה. כדאי לפתוח אותו באותו מכשיר ובאותו דפדפן." };
+}
+
+export async function setNewPassword(_prev: ActionState, data: FormData): Promise<ActionState> {
+  const supabase = await serverClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, message: "הקישור פג תוקף. בקשי קישור חדש מעמוד הכניסה." };
+  const password = String(data.get("password") ?? "");
+  if (password.length < 10) return { ok: false, message: "הסיסמה צריכה להיות באורך 10 תווים לפחות." };
+  if (password !== String(data.get("confirm") ?? "")) return { ok: false, message: "הסיסמאות לא זהות." };
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) return { ok: false, message: "השמירה לא הצליחה. נסי סיסמה אחרת." };
   redirect("/admin");
 }
 

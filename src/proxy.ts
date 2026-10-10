@@ -5,6 +5,15 @@ import { supabaseAnonKey, supabaseConfigured, supabaseUrl } from "@/lib/supabase
 // Keeps the admin's login session fresh. Authorization itself is checked in
 // the admin layout and in every server action.
 export async function proxy(request: NextRequest) {
+  // A reset link can land on the home page if Supabase falls back to the site URL.
+  if (request.nextUrl.pathname === "/") {
+    const code = request.nextUrl.searchParams.get("code");
+    if (!code) return NextResponse.next();
+    const url = new URL("/admin/auth/confirm", request.url);
+    url.searchParams.set("code", code);
+    return NextResponse.redirect(url);
+  }
+
   let response = NextResponse.next({ request });
   if (!supabaseConfigured) return response;
 
@@ -23,5 +32,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/student/:path*"],
+  matcher: ["/", "/admin/:path*", "/student/:path*"],
 };
