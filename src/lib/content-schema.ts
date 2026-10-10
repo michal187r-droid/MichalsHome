@@ -131,6 +131,8 @@ export const sections: Section[] = [
         { kind: "text", key: "who", label: "חתימה (מי כתב)" },
         { kind: "textarea", key: "short", label: "גרסה קצרה (עמוד הבית)" },
         { kind: "textarea", key: "quote", label: "גרסה מלאה (עמוד ההמלצות)" },
+        { kind: "textarea", key: "reply", label: "התשובה שלי (לא חובה)", hint: "מופיעה מתחת להמלצה בעמוד ההמלצות. אפשר להשאיר ריק." },
+        { kind: "textarea", key: "followUp", label: "תגובה חוזרת (לא חובה)", hint: "מה שכתבו בחזרה אחרי התשובה שלי. אפשר להשאיר ריק." },
       ],
     },
   },
