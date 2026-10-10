@@ -1,5 +1,6 @@
 // Database setup (tables, access rules). Every statement is safe to re-run.
-// Applied in order from /admin/setup on a preview deployment.
+// Applied in order from /admin/setup on a preview deployment, or from the
+// "update database" button in the admin panel.
 export const stage2Migration = `-- Stage 2: editable content, contact-form leads, questions & answers.
 -- Every statement is safe to re-run.
 
@@ -159,4 +160,9 @@ revoke all on function public.complete_task(uuid, text) from public, anon;
 grant execute on function public.complete_task(uuid, text) to authenticated;
 `;
 
-export const migrations = [stage2Migration, stage3Migration];
+export const stage4Migration = `-- Stage 4: each task can belong to a subject folder.
+alter table public.tasks add column if not exists subject text
+  check (subject is null or char_length(subject) <= 60);
+`;
+
+export const migrations = [stage2Migration, stage3Migration, stage4Migration];

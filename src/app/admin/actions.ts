@@ -7,6 +7,7 @@ import { getAdmin, serverClient } from "@/lib/supabase/server";
 import { serviceClient } from "@/lib/supabase/service";
 import { CONTENT_TAG, QUESTIONS_TAG } from "@/lib/supabase/public";
 import { CONTENT_KEYS, type ContentKey } from "@/lib/content";
+import { applyMigrations } from "@/lib/db/run";
 
 export type ActionState = { ok: boolean; message?: string } | null;
 
@@ -183,6 +184,23 @@ export async function createStudent(_prev: ActionState, data: FormData): Promise
   return { ok: true, message: `${name} נוסף/ה ✅` };
 }
 
+/** Adds new database columns/tables after a site update. Safe to press twice. */
+export async function updateDatabase() {
+  await requireAdmin();
+  const result = await applyMigrations();
+  if (!result.ok) console.error("updateDatabase:", result.message);
+  revalidatePath("/admin", "layout");
+}
+
+export async function moveTask(data: FormData) {
+  const supabase = await requireAdmin();
+  await supabase
+    .from("tasks")
+    .update({ subject: String(data.get("subject") ?? "").trim().slice(0, 60) || null })
+    .eq("id", String(data.get("id")));
+  revalidatePath("/admin", "layout");
+}
+
 export async function resetStudentPassword(_prev: ActionState, data: FormData): Promise<ActionState> {
   const supabase = await requireAdmin();
   const service = serviceClient();
@@ -210,8 +228,11 @@ export async function addTask(data: FormData) {
   const supabase = await requireAdmin();
   const title = String(data.get("title") ?? "").trim().slice(0, 200);
   if (!title) return;
+  const subject = String(data.get("subject") ?? "").trim().slice(0, 60);
   await supabase.from("tasks").insert({
     student_id: String(data.get("student_id")),
+    // Left out when empty, so adding tasks keeps working before the database update.
+    ...(subject && { subject }),
     title,
     instructions: String(data.get("instructions") ?? "").trim().slice(0, 6000) || null,
     due_date: String(data.get("due_date") ?? "") || null,

@@ -1,8 +1,7 @@
 "use server";
 
-import postgres from "postgres";
 import { createClient } from "@supabase/supabase-js";
-import { migrations } from "@/lib/db/migration";
+import { applyMigrations } from "@/lib/db/run";
 import { supabaseUrl } from "@/lib/supabase/config";
 
 export type SetupState = { ok: boolean; message: string } | null;
@@ -19,18 +18,7 @@ export async function setupAllowed() {
 
 export async function runMigration(): Promise<SetupState> {
   if (!(await setupAllowed())) return { ok: false, message: "לא זמין כאן." };
-  const url = process.env.POSTGRES_URL_NON_POOLING ?? process.env.POSTGRES_URL;
-  if (!url) return { ok: false, message: "חסר חיבור למסד הנתונים." };
-
-  const sql = postgres(url, { ssl: "require", max: 1, prepare: false });
-  try {
-    for (const m of migrations) await sql.unsafe(m);
-    return { ok: true, message: "מסד הנתונים מוכן ✅" };
-  } catch (e) {
-    return { ok: false, message: `שגיאה: ${(e as Error).message}` };
-  } finally {
-    await sql.end();
-  }
+  return applyMigrations();
 }
 
 export async function setAdminPassword(_prev: SetupState, data: FormData): Promise<SetupState> {

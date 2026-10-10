@@ -1,7 +1,9 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getAdmin } from "@/lib/supabase/server";
-import { addTask, deleteStudent, deleteTask, reopenTask, saveFeedback } from "../../../actions";
+import { addTask, deleteStudent, deleteTask, moveTask, reopenTask, saveFeedback, updateDatabase } from "../../../actions";
+import { byFolder, GENERAL_FOLDER } from "@/lib/folders";
 import ConfirmButton from "../../../ConfirmButton";
 import ResetPasswordForm from "./ResetPasswordForm";
 
@@ -17,6 +19,7 @@ type Task = {
   done_at: string | null;
   seen_by_admin: boolean;
   feedback: string | null;
+  subject?: string | null;
 };
 
 const dateTime = new Intl.DateTimeFormat("he-IL", { dateStyle: "short", timeStyle: "short", timeZone: "Asia/Jerusalem" });
@@ -41,6 +44,11 @@ export default async function StudentPage({ params }: PageProps<"/admin/students
 
   const open = tasks.filter((t) => t.status === "open");
   const done = tasks.filter((t) => t.status === "done");
+  const folders = [...new Set(tasks.map((t) => t.subject?.trim()).filter((f): f is string => !!f))];
+  const listId = `folders-${student.id}`;
+
+  // Folders need a database column added by "update database" after this site update.
+  const { error: noFolders } = await admin.supabase.from("tasks").select("subject").limit(1);
 
   return (
     <>
@@ -52,10 +60,34 @@ export default async function StudentPage({ params }: PageProps<"/admin/students
         כניסה: <span dir="ltr">{student.login_email}</span> · <span dir="ltr">michalronies.co.il/student</span>
       </p>
 
+      <datalist id={listId}>
+        {folders.map((f) => (
+          <option key={f} value={f} />
+        ))}
+      </datalist>
+
+      {noFolders && (
+        <section className="admin-item status-new">
+          <h2>📁 תיקיות למקצועות</h2>
+          <p>כדי לסדר משימות בתיקיות לפי מקצוע, צריך לעדכן פעם אחת את מסד הנתונים.</p>
+          <form action={updateDatabase}>
+            <button type="submit" className="admin-btn primary">
+              עדכון מסד הנתונים
+            </button>
+          </form>
+        </section>
+      )}
+
       <section className="admin-item">
         <h2>משימה חדשה</h2>
         <form action={addTask} className="item-form stacked">
           <input type="hidden" name="student_id" value={student.id} />
+          {!noFolders && (
+            <label>
+              תיקייה / מקצוע
+              <input name="subject" type="text" list={listId} maxLength={60} placeholder="למשל: ספרות. אפשר לבחור קיימת או לכתוב חדשה" />
+            </label>
+          )}
           <label>
             כותרת
             <input name="title" type="text" required maxLength={200} placeholder="למשל: הבנת הנקרא – קטע 3" />
@@ -81,16 +113,24 @@ export default async function StudentPage({ params }: PageProps<"/admin/students
       <h2 style={{ marginTop: 28 }}>משימות פתוחות ({open.length})</h2>
       <div className="admin-list">
         {open.length === 0 && <p className="admin-empty">אין משימות פתוחות.</p>}
-        {open.map((t) => (
-          <TaskCard key={t.id} task={t} isNew={false} />
+        {byFolder(open).map(([folder, items]) => (
+          <FolderGroup key={folder} name={folder} show={!noFolders}>
+            {items.map((t) => (
+              <TaskCard key={t.id} task={t} isNew={false} listId={noFolders ? undefined : listId} />
+            ))}
+          </FolderGroup>
         ))}
       </div>
 
       <h2 style={{ marginTop: 28 }}>משימות שבוצעו ({done.length})</h2>
       <div className="admin-list">
         {done.length === 0 && <p className="admin-empty">עוד לא בוצעו משימות.</p>}
-        {done.map((t) => (
-          <TaskCard key={t.id} task={t} isNew={unseen.has(t.id)} />
+        {byFolder(done).map(([folder, items]) => (
+          <FolderGroup key={folder} name={folder} show={!noFolders}>
+            {items.map((t) => (
+              <TaskCard key={t.id} task={t} isNew={unseen.has(t.id)} listId={noFolders ? undefined : listId} />
+            ))}
+          </FolderGroup>
         ))}
       </div>
 
@@ -106,7 +146,17 @@ export default async function StudentPage({ params }: PageProps<"/admin/students
   );
 }
 
-function TaskCard({ task, isNew }: { task: Task; isNew: boolean }) {
+function FolderGroup({ name, show, children }: { name: string; show: boolean; children: ReactNode }) {
+  if (!show) return <>{children}</>;
+  return (
+    <>
+      <h3 className="folder-title">📁 {name}</h3>
+      {children}
+    </>
+  );
+}
+
+function TaskCard({ task, isNew, listId }: { task: Task; isNew: boolean; listId?: string }) {
   return (
     <article className={`admin-item ${isNew ? "status-new" : ""}`}>
       <div className="item-top">
@@ -140,6 +190,21 @@ function TaskCard({ task, isNew }: { task: Task; isNew: boolean }) {
             </button>
           </form>
         </>
+      )}
+      {listId && (
+        <details className="task-move">
+          <summary>העברה לתיקייה אחרת</summary>
+          <form action={moveTask} className="item-form">
+            <input type="hidden" name="id" value={task.id} />
+            <label className="grow">
+              תיקייה (ריק = {GENERAL_FOLDER})
+              <input name="subject" type="text" list={listId} maxLength={60} defaultValue={task.subject ?? ""} />
+            </label>
+            <button type="submit" className="admin-btn ghost">
+              העברה
+            </button>
+          </form>
+        </details>
       )}
       <form action={deleteTask} className="item-delete">
         <input type="hidden" name="id" value={task.id} />

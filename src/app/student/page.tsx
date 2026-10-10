@@ -3,6 +3,7 @@ import { serverClient } from "@/lib/supabase/server";
 import { supabaseConfigured } from "@/lib/supabase/config";
 import { studentSignOut } from "./actions";
 import TaskForm from "./TaskForm";
+import { byFolder, GENERAL_FOLDER } from "@/lib/folders";
 
 type Task = {
   id: string;
@@ -13,6 +14,7 @@ type Task = {
   status: "open" | "done";
   answer: string | null;
   feedback: string | null;
+  subject?: string | null;
 };
 
 const dateOnly = (d: string) => new Intl.DateTimeFormat("he-IL", { dateStyle: "long", timeZone: "UTC" }).format(new Date(d));
@@ -42,13 +44,13 @@ export default async function StudentHome() {
 
   const { data } = await supabase
     .from("tasks")
-    .select("id, title, instructions, due_date, answer_requested, status, answer, feedback")
+    .select("*")
     .eq("student_id", student.id)
     .order("due_date", { ascending: true, nullsFirst: false })
     .order("created_at", { ascending: true });
   const tasks = (data ?? []) as Task[];
   const open = tasks.filter((t) => t.status === "open");
-  const done = tasks.filter((t) => t.status === "done").reverse();
+  const folders = byFolder(tasks);
 
   return (
     <>
@@ -66,47 +68,64 @@ export default async function StudentHome() {
           {open.length ? `יש לך ${open.length} משימות. בהצלחה! 💪` : "אין משימות פתוחות כרגע. כל הכבוד! 🎉"}
         </p>
 
-        <div className="admin-list">
-          {open.map((t) => (
-            <article key={t.id} className="admin-item status-new">
-              <div className="item-top">
-                <h2>{t.title}</h2>
-                {t.due_date && <span className="pill pill-contacted">להגשה עד {dateOnly(t.due_date)}</span>}
-              </div>
-              {t.instructions && <p className="item-message">{t.instructions}</p>}
-              <TaskForm id={t.id} answerRequested={t.answer_requested} />
-            </article>
-          ))}
-        </div>
-
-        {done.length > 0 && (
-          <>
-            <h2 style={{ marginTop: 32 }}>משימות שסיימתי ✅</h2>
-            <div className="admin-list">
-              {done.map((t) => (
-                <details key={t.id} className="admin-item">
-                  <summary className="item-top">
-                    <h2>{t.title}</h2>
-                    {t.feedback && <span className="pill pill-new">💬 יש משוב ממיכל</span>}
-                  </summary>
-                  {t.answer && (
-                    <>
-                      <p className="task-answer-label">מה כתבתי:</p>
-                      <p className="item-message">{t.answer}</p>
-                    </>
-                  )}
-                  {t.feedback && (
-                    <>
-                      <p className="task-answer-label">משוב ממיכל:</p>
-                      <p className="item-message feedback">{t.feedback}</p>
-                    </>
-                  )}
-                </details>
-              ))}
-            </div>
-          </>
-        )}
+        {folders.map(([folder, items]) => (
+          <Folder key={folder} name={folder} showTitle={folders.length > 1 || folder !== GENERAL_FOLDER} tasks={items} />
+        ))}
       </main>
     </>
+  );
+}
+
+function Folder({ name, showTitle, tasks }: { name: string; showTitle: boolean; tasks: Task[] }) {
+  const open = tasks.filter((t) => t.status === "open");
+  const done = tasks.filter((t) => t.status === "done").reverse();
+  return (
+    <section className="student-folder">
+      {showTitle && (
+        <h2 className="folder-title">
+          📁 {name} {open.length > 0 && <span className="pill pill-new">{open.length} פתוחות</span>}
+        </h2>
+      )}
+      <div className="admin-list">
+        {open.map((t) => (
+          <article key={t.id} className="admin-item status-new">
+            <div className="item-top">
+              <h2>{t.title}</h2>
+              {t.due_date && <span className="pill pill-contacted">להגשה עד {dateOnly(t.due_date)}</span>}
+            </div>
+            {t.instructions && <p className="item-message">{t.instructions}</p>}
+            <TaskForm id={t.id} answerRequested={t.answer_requested} />
+          </article>
+        ))}
+      </div>
+
+      {done.length > 0 && (
+        <>
+          <h3 style={{ marginTop: 20 }}>משימות שסיימתי ✅</h3>
+          <div className="admin-list">
+            {done.map((t) => (
+              <details key={t.id} className="admin-item">
+                <summary className="item-top">
+                  <h2>{t.title}</h2>
+                  {t.feedback && <span className="pill pill-new">💬 יש משוב ממיכל</span>}
+                </summary>
+                {t.answer && (
+                  <>
+                    <p className="task-answer-label">מה כתבתי:</p>
+                    <p className="item-message">{t.answer}</p>
+                  </>
+                )}
+                {t.feedback && (
+                  <>
+                    <p className="task-answer-label">משוב ממיכל:</p>
+                    <p className="item-message feedback">{t.feedback}</p>
+                  </>
+                )}
+              </details>
+            ))}
+          </div>
+        </>
+      )}
+    </section>
   );
 }
